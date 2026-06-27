@@ -1,4 +1,5 @@
 package com.nguyenduyanh.example02.controller;
+
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("api/products")
 public class ProductController {
+    
     private ProductService productService;
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product Product){

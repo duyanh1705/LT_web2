@@ -6,7 +6,7 @@ function Layout(props){
         <div>
             <Navbar bg="primary" variant="dark" expand="lg">
                 <Container>
-                    <Navbar.Brand>Nguyen Duy Anh</Navbar.Brand>
+                    <Navbar.Brand>Website bán điện thoại</Navbar.Brand>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 </Container>
             </Navbar>

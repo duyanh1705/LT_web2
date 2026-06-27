@@ -27,6 +27,6 @@ public class Category {
     @Column(nullable = false, unique = true)
     private String photo;
     @OneToMany(mappedBy = "category")
-    @JsonIgnore
+    //@JsonIgnore
     private List<Product> products;
 }
