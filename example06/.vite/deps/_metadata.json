@@ -1,0 +1,40 @@
+{
+  "hash": "653e8ca1",
+  "configHash": "75d7541d",
+  "lockfileHash": "b899b0a0",
+  "browserHash": "7617ebf3",
+  "optimized": {
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "7f0bd2cc",
+      "needsInterop": true
+    },
+    "react-admin": {
+      "src": "../../node_modules/react-admin/dist/index.js",
+      "file": "react-admin.js",
+      "fileHash": "0799af14",
+      "needsInterop": false
+    },
+    "@react-pdf/renderer": {
+      "src": "../../node_modules/@react-pdf/renderer/lib/react-pdf.browser.js",
+      "file": "@react-pdf_renderer.js",
+      "fileHash": "317b55b8",
+      "needsInterop": false
+    },
+    "react-icons/hi": {
+      "src": "../../node_modules/react-icons/hi/index.mjs",
+      "file": "react-icons_hi.js",
+      "fileHash": "05f0516c",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-YO4BHU2R": {
+      "file": "chunk-YO4BHU2R.js"
+    },
+    "chunk-GTUAZBCZ": {
+      "file": "chunk-GTUAZBCZ.js"
+    }
+  }
+}
