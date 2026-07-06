@@ -13,11 +13,14 @@ import com.nguyenduyanh.example05.entity.User;
 import com.nguyenduyanh.example05.exceptions.ResourceNotFoundException;
 import com.nguyenduyanh.example05.repository.UserRepo;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private UserRepo userRepo;
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
         Optional<User> user =userRepo.findByEmail(username);
         return user.map(UserInfoConfig::new).orElseThrow(()-> new ResourceNotFoundException("User","email",username));

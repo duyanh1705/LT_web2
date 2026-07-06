@@ -194,24 +194,34 @@ export const dataProvider: DataProvider = {
         throw new Error('Function not implemented.');
     },
     create: async (resource: string, params: CreateParams): Promise<CreateResult> => {
-        try {
-            console.log("data", params);
-            let url: string;
-            if (resource === "products") {
-                url = `${apiUrl}/admin/categories/${params.data.categoryId}/${resource}`;
-                delete params.data.categoryId;
-                params.data.image = 'default.png';
-            } else {
-                url = `${apiUrl}/admin/${resource}`;
-            }
-            const { data } = params;
-            const result = await httpClient.post(url, data);
-            return { data: { ...data, id: result.json.id } };
-        } catch (error) {
-            console.error("Error creating resource:", error);
-            throw error;
-        }
-    },
+    let url: string;
+
+    if (resource === "products") {
+        url = `${apiUrl}/admin/categories/${params.data.categoryId}/${resource}`;
+        delete params.data.categoryId;
+        params.data.image = 'default.png';
+    } else {
+        url = `${apiUrl}/admin/${resource}`;
+    }
+
+    const result = await httpClient.post(url, params.data);
+
+    // ✅ map id đúng cho react-admin
+    const id =
+        resource === "products"
+            ? result.json.productId
+            : resource === "categories"
+                ? result.json.categoryId
+                : result.json.id;
+
+    return {
+        data: {
+            ...result.json,
+            id, // 👈 BẮT BUỘC
+        },
+    };
+},
+
     update: async (resource: string, params: UpdateParams): Promise<UpdateResult> => {
         const url = `${apiUrl}/admin/${resource}/${params.id}`;
         const { data } = params;
@@ -225,20 +235,24 @@ export const dataProvider: DataProvider = {
         return { data: updatedData };
     },
     getOne: async (resource: string, params: GetOneParams): Promise<GetOneResult> => {
-        const url = `${apiUrl}/public/${resource}/${params.id}`;
-        const result = await httpClient.get(url);
-        const idFieldMapping: { [key: string]: string } = {
-            products: 'productId',
-            categories: 'categoryId',
-        };
-        const idField = idFieldMapping[resource] || 'id';
-        const data = {
-            id: result.json.idField,
-            ...result.json
-        };
-        console.log('data data:', data);
-        return { data };
-    },
+    const url = `${apiUrl}/public/${resource}/${params.id}`;
+    const result = await httpClient.get(url);
+
+    const idFieldMapping: { [key: string]: string } = {
+        products: 'productId',
+        categories: 'categoryId',
+    };
+
+    const idField = idFieldMapping[resource] || 'id';
+
+    const data = {
+        id: result.json[idField], // ✅ ĐÚNG
+        ...result.json,
+    };
+
+    return { data };
+},
+
     getMany: async (resource: string, params: GetManyParams): Promise<GetManyResult> => {
         const idFieldMapping: { [key: string]: string } = {
             products: 'productId',

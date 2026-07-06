@@ -1,7 +1,6 @@
 import React from 'react';
 import {List,useRedirect,useNotify,useRefresh,useRecordContext, ReferenceField, TextField, Show, SimpleShowLayout, NumberField, ArrayField,ImageField,Datagrid,Identifier, email} from 'react-admin';
 import PDFButton from './PDFButton';
-import { error } from 'console';
 
 const CustomPDFButton =() => {
     const record =useRecordContext();

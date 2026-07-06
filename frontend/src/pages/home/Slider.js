@@ -52,19 +52,19 @@ const Slider = () => {
                                 </ol>
                                 <div className="carousel-inner">
                                     <div className="carousel-item active">
-                                        <img src={require("../../assets/images/banners/Banner1.png")} alt="First slide" /> 
+                                        <img src={require("../../assets/images/banners/Slider1.webp")} alt="First slide" />
                                     </div>
                                     <div className="carousel-item">
-                                        <img src={require("../../assets/images/banners/Banner2.avif")} alt="Second slide" />
+                                        <img src={require("../../assets/images/banners/Slider2.jpg")} alt="Second slide" />
                                     </div>
                                     <div className="carousel-item">
-                                        <img src={require("../../assets/images/banners/Banner3.webp")} alt="Third slide" />
+                                        <img src={require("../../assets/images/banners/Slider3.webp")} alt="Third slide" />
                                     </div>
                                     <div className="carousel-item">
-                                        <img src={require("../../assets/images/banners/Banner4.avif")} alt="Third slide" />
+                                        <img src={require("../../assets/images/banners/Slider4.jpg")} alt="Third slide" />
                                     </div>
                                     <div className="carousel-item">
-                                        <img src={require("../../assets/images/banners/Banner100.jpg")} alt="Third slide" />
+                                        <img src={require("../../assets/images/banners/Slider5.jpg")} alt="Third slide" />
                                     </div>
                                 </div>
                                 <a className="carousel-control-prev" href="#carousel1_indicator" role="button" data-slide="prev">

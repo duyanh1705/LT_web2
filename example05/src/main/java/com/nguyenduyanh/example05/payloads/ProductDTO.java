@@ -1,8 +1,10 @@
 package com.nguyenduyanh.example05.payloads;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDTO {
@@ -16,8 +18,11 @@ public class ProductDTO {
     private double discount;
     private double specialPrice;
 
+    // 🔴 ĐƯA 2 BIẾN NÀY XUỐNG DƯỚI CÙNG THEO ĐÚNG MẪU CỦA THẦY
+    private String categoryName;
     private Long categoryId;
-    // ===== GETTERS & SETTERS =====
+
+    // ===== GETTERS & SETTERS THỦ CÔNG =====
 
     public Long getProductId() {
         return productId;
@@ -81,5 +86,22 @@ public class ProductDTO {
 
     public void setSpecialPrice(double specialPrice) {
         this.specialPrice = specialPrice;
+    }
+
+    // 🔴 BẮT BUỘC: THÊM CÁC HÀM GETTER/SETTER VIẾT TAY NÀY VÀO CUỐI CLASS
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 }

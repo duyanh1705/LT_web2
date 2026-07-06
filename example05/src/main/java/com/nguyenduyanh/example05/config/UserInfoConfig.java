@@ -29,7 +29,7 @@ public class UserInfoConfig implements UserDetails {
         this.email =user.getEmail();
         this.password =user.getPassword();
         this.authorities = user.getRoles().stream()
-    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName()))
+    .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
     .collect(Collectors.toList());
 
     }

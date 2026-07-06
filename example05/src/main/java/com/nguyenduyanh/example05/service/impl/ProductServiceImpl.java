@@ -75,7 +75,7 @@ public class ProductServiceImpl implements ProductService {
             double specialPrice = product.getPrice() - (product.getDiscount() * 0.01) * product.getPrice();
             product.setSpecialPrice(specialPrice);
             Product savedProduct = productRepo.save(product);
-            return modelMapper.map(savedProduct, ProductDTO.class);
+            return mapToDTOWithImage(savedProduct);
         } else {
             throw new APIException("Product already exists !!!");
         }
@@ -263,6 +263,13 @@ public class ProductServiceImpl implements ProductService {
 
 private ProductDTO mapToDTOWithImage(Product product) {
     ProductDTO dto = modelMapper.map(product, ProductDTO.class);
+    
+    // 🔴 SỬA LẠI ĐOẠN ĐANG DÙNG TRY-CATCH THÀNH DÒNG NÀY:
+    if (product.getCategory() != null) {
+        dto.setCategoryName(product.getCategory().getCategoryName()); 
+        // ⚠️ Nếu dòng này báo lỗi đỏ (gạch chân): Chứng tỏ bạn chưa tạo hàm setCategoryName trong ProductDTO.java.
+        // Bạn chỉ cần mở ProductDTO.java lên thêm @Data hoặc viết hàm setter là xong!
+    }
 
     if (product.getImage() != null && !product.getImage().isEmpty()) {
         dto.setImage(

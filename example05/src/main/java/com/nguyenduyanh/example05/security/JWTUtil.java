@@ -14,22 +14,30 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 @Component
 public class JWTUtil {
     @Value("${jwt_secret}")
-    private String secret;  
+    private String secret;
+
+    // 🔴 ĐÃ XÓA BIẾN expireDate TOÀN CỤC Ở ĐÂY
 
     public String generateToken(String email) throws IllegalArgumentException, JWTCreationException {
+        // 🔴 ĐƯA XUỐNG ĐÂY: Mỗi lần gọi tạo token, thời gian hết hạn mới được tính từ thời điểm bấm nút
+        Date dynamicExpireDate = new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10);
+
         return JWT.create()
-        .withSubject("User Details")
-        .withClaim("email", email)
-        .withIssuedAt(new Date())
-        .withIssuer("Event Scheduler")
-        .sign(Algorithm.HMAC256(secret));
+            .withSubject("User Details")
+            .withClaim("email", email)
+            .withIssuedAt(new Date())
+            .withExpiresAt(dynamicExpireDate) // 🔴 Dùng biến động vừa tạo
+            .withIssuer("Event Scheduler")
+            .sign(Algorithm.HMAC256(secret));
     }
-public String validateTokenAndRetrieveSubject(String token) throws JWTVerificationException { // Đổi tên phương thức
-    JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret))
-    .withSubject("User Details")
-    .withIssuer("Event Scheduler")
-    .build();
-    DecodedJWT jwt = verifier.verify(token);
-    return jwt.getClaim("email").asString();
-}
+
+    public String validateTokenAndRetrieveSubject(String token) throws JWTVerificationException {
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret))
+            .withSubject("User Details")
+            .withIssuer("Event Scheduler")
+            .acceptLeeway(3600)
+            .build();
+        DecodedJWT jwt = verifier.verify(token);
+        return jwt.getClaim("email").asString();
+    }
 }

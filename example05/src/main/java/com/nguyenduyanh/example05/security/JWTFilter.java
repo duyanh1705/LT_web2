@@ -1,7 +1,6 @@
 package com.nguyenduyanh.example05.security;
 
 import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,19 +25,7 @@ public class JWTFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsServiceImpl userDetailsServiceImpl;
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-
-        String path = request.getServletPath();
-
-        return path.startsWith("/images/")
-                || path.startsWith("/api/public/")
-                || path.startsWith("/api/login")
-                || path.startsWith("/api/register")
-                || path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs")
-                || "OPTIONS".equalsIgnoreCase(request.getMethod());
-    }
+    // 🔴 ĐÃ XÓA BỎ HOÀN TOÀN HÀM shouldNotFilter Ở ĐÂY
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -48,7 +35,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // ✅ KHÔNG CÓ TOKEN → CHO QUA
+        // KHÔNG CÓ TOKEN → CHO QUA ĐỂ SECURITY CONFIG KIỂM TRA LUẬT PERMITALL
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -75,5 +62,4 @@ public class JWTFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
 }

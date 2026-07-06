@@ -59,7 +59,9 @@ public class SecurityConfig {
 
                         // PUBLIC
                         .requestMatchers(
+                            "/api/login", 
                                 "/api/login/**",
+                                "/api/register",
                                 "/api/register/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
@@ -68,11 +70,14 @@ public class SecurityConfig {
 
                         // USER
                         .requestMatchers(AppConstants.USER_URLS)
-                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .hasAnyAuthority("USER", "ADMIN")
 
                         // ADMIN
-                        .requestMatchers(AppConstants.ADMIN_URLS)
-                        .hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(
+                            "/api/admin/**",
+                            "/api/admin/categories/**"
+                        )
+                        .hasAuthority("ADMIN")
 
                         .anyRequest().authenticated())
 

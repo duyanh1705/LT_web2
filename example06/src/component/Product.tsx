@@ -40,7 +40,7 @@ export const ProductList = () => (
         <Datagrid rowClick={false}>
             <TextField source="productId" label="Product ID" />
             <TextField source="productName" label="Product Name" />
-            <TextField source="category.categoryName" label="Category Name" />
+            <TextField source="categoryName" label="Category Name" />   
             <CustomImageField source="image" />
             <TextField source="description" label="Description" />
             <NumberField source="quantity" label="Quantity" />
