@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.nguyenduyanh.example05.config.AppConstants;
 import com.nguyenduyanh.example05.entity.Product;
@@ -41,6 +42,8 @@ import jakarta.validation.Valid;
 @SecurityRequirement(name = "E-Commerce Application")
 @CrossOrigin(origins = "*")
 public class ProductController {
+    @Value("${project.image}")
+    private String imagePath;
     @Autowired
     private ProductService productService;
 
@@ -93,15 +96,24 @@ public class ProductController {
         return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/images/{filename}")
+@GetMapping("/images/{filename}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
-        Path path = Paths.get("uploads/images/" + filename);
-        Resource resource = new FileSystemResource(path);
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
-                .body(resource);
+        try {
+            // Dùng imagePath đã cấu hình
+            Path path = Paths.get(imagePath).resolve(filename);
+            Resource resource = new FileSystemResource(path);
+            
+            if (!resource.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_PNG)
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
-
     // @GetMapping("/public/products/image/{fileName}")
     // public ResponseEntity<Resource> getProductImage(@PathVariable String
     // fileName) {

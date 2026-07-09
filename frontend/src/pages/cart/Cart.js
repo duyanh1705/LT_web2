@@ -59,15 +59,12 @@ const CartPage = ({ cart: initialCart = [], setCart }) => {
             {cart.map((item) => (
               <tr key={item.productId}>
                 <td>
-                  <img
-                    src={
-                      item.image.startsWith("http")
-                        ? item.image
-                        : `http://localhost:8080/images/${item.image}`
-                    }
-                    alt={item.productName}
-                    width="50"
-                  />
+<img 
+    src={item.image ? item.image.replace('http://localhost:8080/images/', 'http://localhost:8080/api/images/') : ''} 
+    alt={item.productName} 
+    // Giữ nguyên style hoặc className cũ của trang Cart tại đây
+    style={{ width: "80px", height: "auto" }} 
+/>
 
                   {item.productName}
                 </td>

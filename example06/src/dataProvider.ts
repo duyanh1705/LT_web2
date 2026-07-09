@@ -1,6 +1,5 @@
 import { keyframes } from "@emotion/react";
 import axios from "axios";
-import { error } from "console";
 import { CreateParams, CreateResult, DataProvider, DeleteManyParams, DeleteManyResult, DeleteParams, DeleteResult, GetManyParams, GetManyReferenceParams, GetManyReferenceResult, GetManyResult, GetOneParams, GetOneResult, Identifier, QueryFunctionContext, RaRecord, UpdateManyParams, UpdateManyResult, UpdateParams, UpdateResult } from "react-admin";
 
 const apiUrl = 'http://localhost:8080/api';

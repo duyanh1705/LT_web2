@@ -91,10 +91,11 @@ const Detail = () => {
                 <div className="img-big-wrap">
                   <div>
                     <a href="#">
-                      <img
-                        src={product.image}
-                        alt={product.productName}
-                      />
+<img 
+    src={product?.image ? product.image.replace('http://localhost:8080/images/', 'http://localhost:8080/api/images/') : ''} 
+    alt={product?.productName} 
+    className="img-fluid" // Giữ nguyên class CSS cũ của trang Detail nếu có
+/>
                     </a>
                   </div>
                 </div>

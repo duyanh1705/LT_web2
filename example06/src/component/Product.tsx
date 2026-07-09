@@ -1,37 +1,38 @@
-import { List, useRecordContext, Link, Datagrid, TextField, ImageField, NumberField, Create, Edit, SimpleForm, TextInput, NumberInput, ImageInput, ReferenceInput, SelectInput, EditButton, DeleteButton,RaRecord, } from 'react-admin';
+import { List, useRecordContext, Link, Datagrid, TextField, ImageField, NumberField, Create, Edit, SimpleForm, TextInput, NumberInput, ImageInput, ReferenceInput, SelectInput, EditButton, DeleteButton, RaRecord, } from 'react-admin';
 
 import { Link as RouterLink } from 'react-router-dom';
 
 const CustomImageField = ({ source }: { source: string }) => {
     const record = useRecordContext<RaRecord>();
+    if (!record?.[source]) return <span>No Image</span>;
 
-    if (!record?.[source]) {
-        return <span>No Image</span>;
-    }
+    const originalUrl = record[source];
+    const secureImageUrl = originalUrl.replace('http://localhost:8080/images/', 'http://localhost:8080/api/images/');
 
     return (
         <RouterLink
+            // Dùng record.productId để lấy đúng ID của sản phẩm làm đường dẫn điều hướng
             to={`/products/${record.productId}/image`}
-            style={{ display: 'inline-block' }}
+            style={{ display: 'inline-block', cursor: 'pointer' }}
         >
             <img
-                src={record[source]}
+                src={secureImageUrl} 
                 alt="Product"
-                style={{
-                    width: 100,
-                    cursor: 'pointer',
+                style={{ 
+                    width: 100, 
+                    height: 'auto',
                     border: '1px solid #444',
+                    borderRadius: '4px'
                 }}
             />
         </RouterLink>
     );
 };
-
 export default CustomImageField;
 
 const postFilters = [
     <TextInput source="search" label="Search" alwaysOn />,
-    <ReferenceInput source="categoryId" reference="categories" label="Thể loại">    
+    <ReferenceInput source="categoryId" reference="categories" label="Thể loại">
         <SelectInput optionText="categoryName" optionValue="id" />
     </ReferenceInput>
 ];
@@ -40,7 +41,7 @@ export const ProductList = () => (
         <Datagrid rowClick={false}>
             <TextField source="productId" label="Product ID" />
             <TextField source="productName" label="Product Name" />
-            <TextField source="categoryName" label="Category Name" />   
+            <TextField source="categoryName" label="Category Name" />
             <CustomImageField source="image" />
             <TextField source="description" label="Description" />
             <NumberField source="quantity" label="Quantity" />

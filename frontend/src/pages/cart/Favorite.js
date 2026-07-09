@@ -33,11 +33,11 @@ const FavoritePage = () => {
             <div className="col-md-3 col-sm-6 mb-4" key={product.productId} style={{ cursor: "pointer" }}>
               <figure className="card card-product-grid">
                 <div className="img-wrap position-relative" onClick={() => handleProductClick(product.productId)}>
-                  <img
-                    src={product.image}
-                    alt={product.productName}
-                    className="img-fluid"
-                  />
+<img 
+    src={product.image ? product.image.replace('http://localhost:8080/images/', 'http://localhost:8080/api/images/') : ''} 
+    alt={product.productName} 
+    className="img-fluid"
+/>
                 </div>
                 <figcaption className="info-wrap p-3">
                   <a href="#" className="title mb-2 d-block text-truncate">{product.productName}</a>

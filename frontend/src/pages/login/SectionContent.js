@@ -10,10 +10,11 @@ const SectionContent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
 
-    const body = {
-      email,
-      password,
-    };
+const body = {
+  username: email, // Đáp ứng cho Spring Security bộ lọc xác thực ban đầu
+  email: email,    // Đáp ứng cho hàm logic Custom UserDetailsService tìm kiếm theo Email của bạn
+  password: password,
+};
 
     try {
       const response = await LOGIN(body);

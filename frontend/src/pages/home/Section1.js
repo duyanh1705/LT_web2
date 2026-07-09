@@ -84,15 +84,15 @@ const Section1 = ({ categoryName, categoryId }) => {
                     to={`/Detail?productId=${row.productId}`}
                     className="img-wrap"
                   >
-                    <img
-                      src={
-                        row.image.startsWith("http")
-                          ? row.image
-                          : `http://localhost:8080/api/public/products/image/${row.image}`
-                      }
-                      alt={row.productName}
-                      className="img-fluid"
-                    />
+<img
+  src={
+    row.image && row.image.startsWith("http")
+      ? row.image.replace('http://localhost:8080/images/', 'http://localhost:8080/api/images/')
+      : `http://localhost:8080/api/images/${row.image}`
+  }
+  alt={row.productName}
+  className="img-fluid"
+/>
 
                   </Link>
                   <figcaption className="info-wrap p-3">

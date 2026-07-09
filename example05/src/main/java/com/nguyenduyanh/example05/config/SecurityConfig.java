@@ -52,7 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/images/**").permitAll()
 
                         // IMAGE API (FIX Ở ĐÂY)
-                        .requestMatchers(HttpMethod.GET, "/api/public/images/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
 
                         // OPTIONS
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
