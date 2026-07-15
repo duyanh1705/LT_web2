@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { GET_ALL } from "../../api/apiService";
+import { GET_ALL, POST_CART_ADD } from "../../api/apiService";
 import startsActive from "../../assets/images/icons/stars-active.svg";
 import startsDisable from "../../assets/images/icons/starts-disable.svg";
 import { Link } from "react-router-dom";
@@ -36,7 +36,23 @@ const Section1 = ({ categoryName, categoryId }) => {
       });
   }, [categoryId]);
 
-  const addToCart = (product) => {
+  const addToCart = async (product) => {
+    const storedCartId = localStorage.getItem("cartId");
+    const storedEmail = localStorage.getItem("userEmail");
+
+    if (storedEmail && storedCartId) {
+      try {
+        const cartDto = await POST_CART_ADD(storedCartId, product.productId, 1);
+        if (cartDto?.products) {
+          localStorage.setItem("cart", JSON.stringify(cartDto.products));
+        }
+        alert("Đã thêm vào giỏ hàng!");
+        return;
+      } catch (error) {
+        console.error("Failed to add product to backend cart:", error);
+      }
+    }
+
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
     if (!Array.isArray(cart)) {
       cart = [];

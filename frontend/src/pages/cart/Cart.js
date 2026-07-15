@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { GET_USER_CART, PUT_CART_UPDATE, DELETE_CART_PRODUCT } from "../../api/apiService";
 
 const CartPage = ({ cart: initialCart = [], setCart }) => {
   const [cart, setLocalCart] = useState(initialCart);
@@ -7,11 +8,28 @@ const CartPage = ({ cart: initialCart = [], setCart }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (!Array.isArray(storedCart)) {
-      setLocalCart([]);
+    const storedEmail = localStorage.getItem("userEmail");
+    const storedCartId = localStorage.getItem("cartId");
+
+    if (storedEmail && storedCartId) {
+      GET_USER_CART(storedEmail, storedCartId)
+        .then((cartDto) => {
+          if (cartDto?.products && Array.isArray(cartDto.products)) {
+            setLocalCart(cartDto.products);
+            if (setCart) setCart(cartDto.products);
+            localStorage.setItem("cart", JSON.stringify(cartDto.products));
+          } else {
+            setLocalCart([]);
+          }
+        })
+        .catch((error) => {
+          console.warn("Could not load backend cart, falling back to local cart:", error);
+          const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+          setLocalCart(Array.isArray(storedCart) ? storedCart : []);
+        });
     } else {
-      setLocalCart(storedCart);
+      const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+      setLocalCart(Array.isArray(storedCart) ? storedCart : []);
     }
   }, []);
 
@@ -21,8 +39,28 @@ const CartPage = ({ cart: initialCart = [], setCart }) => {
     setTotal(sum);
   }, [cart]);
 
-  const updateQuantity = (productId, quantity) => {
+  const updateQuantity = async (productId, quantity) => {
     if (!Array.isArray(cart)) return;
+    if (quantity < 1) return;
+
+    const storedCartId = localStorage.getItem("cartId");
+    const storedEmail = localStorage.getItem("userEmail");
+
+    if (storedEmail && storedCartId) {
+      try {
+        await PUT_CART_UPDATE(storedCartId, productId, quantity);
+        const updatedCart = cart.map((item) =>
+          item.productId === productId ? { ...item, quantity } : item
+        );
+        setLocalCart(updatedCart);
+        localStorage.setItem("cart", JSON.stringify(updatedCart));
+        if (setCart) setCart(updatedCart);
+        return;
+      } catch (error) {
+        console.warn("Failed to update backend cart quantity, falling back:", error);
+      }
+    }
+
     let newCart = cart.map((item) =>
       item.productId === productId ? { ...item, quantity: quantity } : item
     );
@@ -31,8 +69,24 @@ const CartPage = ({ cart: initialCart = [], setCart }) => {
     if (setCart) setCart(newCart);
   };
 
-  const removeItem = (productId) => {
+  const removeItem = async (productId) => {
     if (!Array.isArray(cart)) return;
+    const storedCartId = localStorage.getItem("cartId");
+    const storedEmail = localStorage.getItem("userEmail");
+
+    if (storedEmail && storedCartId) {
+      try {
+        await DELETE_CART_PRODUCT(storedCartId, productId);
+        const updatedCart = cart.filter((item) => item.productId !== productId);
+        setLocalCart(updatedCart);
+        localStorage.setItem("cart", JSON.stringify(updatedCart));
+        if (setCart) setCart(updatedCart);
+        return;
+      } catch (error) {
+        console.warn("Failed to delete item from backend cart, falling back:", error);
+      }
+    }
+
     let newCart = cart.filter((item) => item.productId !== productId);
     setLocalCart(newCart);
     localStorage.setItem("cart", JSON.stringify(newCart));

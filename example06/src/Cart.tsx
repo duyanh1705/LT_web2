@@ -1,5 +1,5 @@
 import React from 'react';
-import {List,useRedirect,useNotify,useRefresh,useRecordContext, ReferenceField, TextField, Show, SimpleShowLayout, NumberField, ArrayField,ImageField,Datagrid,Identifier, email} from 'react-admin';
+import { List, useRedirect, useNotify, useRefresh, useRecordContext, ReferenceField, TextField, Show, SimpleShowLayout, NumberField, ArrayField, ImageField, Datagrid, Identifier } from 'react-admin';
 import PDFButton from './PDFButton';
 
 const CustomPDFButton =() => {
@@ -13,20 +13,23 @@ const CustomPDFButton =() => {
     return <PDFButton />;
 };
 export const CartList =() => {
-    const redirect =useRedirect();
-    const handleRowClick =(id: Identifier | undefined, resource: string | undefined, record: {email: string;}) => {
-        if(id){
-            localStorage.setItem('globalCartId',id.toString());
+    const redirect = useRedirect();
+    const handleRowClick = (id: Identifier | undefined, resource: string | undefined, record: { email?: string; cartId?: Identifier }) => {
+        if (id) {
+            localStorage.setItem('globalCartId', id.toString());
         }
-        localStorage.setItem("globalEmailCart", record.email);
-        redirect('show', resource, id);
+        if (record?.email) {
+            localStorage.setItem('globalEmailCart', record.email);
+        }
+        return 'show';
     };
     return (
         <List>
-            <Datagrid rowClick="show">
+            <Datagrid rowClick={handleRowClick}>
                 <TextField source="cartId" label="Cart ID" />
-                <TextField source="totalPrice" label="Total Price" />
+                <TextField source="customerName" label="Customer Name" />
                 <TextField source="email" label="Email" />
+                <TextField source="totalPrice" label="Total Price" />
             </Datagrid>
         </List>
     );
@@ -41,14 +44,17 @@ export const CartShow =() => {
         redirect('/carts');
         refresh();
     };
-    if(!localStorage.getItem("globalEmailCart")){
-        return <span>Error: Email is required</span>;
+    const email = localStorage.getItem("globalEmailCart") || localStorage.getItem("username");
+    const cartId = localStorage.getItem("globalCartId") || localStorage.getItem("cartId");
+
+    if (!email || !cartId) {
+        return <span>Error: Email and Cart ID are required</span>;
     }
 
     return (
         <Show 
         queryOptions={{
-            meta: {email: localStorage.getItem("globalEmailCart") },
+            meta: { email },
             onError,
         }}
         >

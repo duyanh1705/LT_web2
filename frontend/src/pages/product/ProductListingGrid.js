@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { GET_ALL, GET_ID } from '../../api/apiService';
+import { GET_ALL, GET_ID, POST_CART_ADD } from '../../api/apiService';
 import { Logout } from '@mui/icons-material';
 
 const ProductListingGrid = () => {
@@ -109,20 +109,34 @@ const ProductListingGrid = () => {
   const handleProductClick = (productId) => {
     navigate(`/Detail?productId=${productId}`);
   };
-  const addToCart = (product) => {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (!Array.isArray(cart)) {
-      cart = [];
+  const addToCart = async (product) => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const storedEmail = localStorage.getItem("userEmail");
+    const storedCartId = localStorage.getItem("cartId");
+
+    if (storedEmail && storedCartId) {
+      try {
+        const cartDto = await POST_CART_ADD(storedCartId, product.productId, 1);
+        if (cartDto?.products) {
+          localStorage.setItem("cart", JSON.stringify(cartDto.products));
+        }
+        alert("Đã thêm vào giỏ hàng!");
+        return;
+      } catch (error) {
+        console.error("Failed to add product to backend cart:", error);
+      }
     }
-    const index = cart.findIndex((item) => item.productId === product.productId);
+
+    const normalizedCart = Array.isArray(cart) ? cart : [];
+    const index = normalizedCart.findIndex((item) => item.productId === product.productId);
 
     if (index !== -1) {
-      cart[index].quantity += 1; // Nếu sản phẩm đã có trong giỏ, tăng số lượng
+      normalizedCart[index].quantity += 1;
     } else {
-      cart.push({ ...product, quantity: 1 }); // Thêm sản phẩm mới
+      normalizedCart.push({ ...product, quantity: 1 });
     }
 
-    localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem("cart", JSON.stringify(normalizedCart));
     alert("Đã thêm vào giỏ hàng!");
   };
   const addToFavorites = (product) => {

@@ -190,37 +190,47 @@ public class ProductServiceImpl implements ProductService {
         if (productFromDB == null) {
             throw new APIException("Product not found with productId: " + productId);
         }
-        Product product =modelMapper.map(productDTO, Product.class);
 
-        productFromDB.setProductName(productDTO.getProductName());
-        productFromDB.setDescription(productDTO.getDescription());
-        productFromDB.setPrice(productDTO.getPrice());
-        productFromDB.setDiscount(productDTO.getDiscount());
-        productFromDB.setQuantity(productDTO.getQuantity());
+        if (productDTO.getProductName() != null) {
+            productFromDB.setProductName(productDTO.getProductName());
+        }
+        if (productDTO.getDescription() != null) {
+            productFromDB.setDescription(productDTO.getDescription());
+        }
+        if (productDTO.getPrice() != null) {
+            productFromDB.setPrice(productDTO.getPrice());
+            System.out.println("[BACKEND] Updated price to: " + productDTO.getPrice());
+        }
+        if (productDTO.getDiscount() != null) {
+            productFromDB.setDiscount(productDTO.getDiscount());
+        }
+        if (productDTO.getQuantity() != null) {
+            productFromDB.setQuantity(productDTO.getQuantity());
+        }
 
-        // giữ nguyên image cũ
-        productFromDB.setImage(productFromDB.getImage());
+        if (productDTO.getCategoryId() != null) {
+            Category category = categoryRepo.findById(productDTO.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", productDTO.getCategoryId()));
+            productFromDB.setCategory(category);
+        }
 
-        // giữ nguyên category cũ
-        productFromDB.setCategory(productFromDB.getCategory());
+        if (productDTO.getImage() != null) {
+            productFromDB.setImage(productDTO.getImage());
+        } else {
+            productFromDB.setImage(productFromDB.getImage());
+        }
 
-        // tính lại special price
-        double specialPrice = productDTO.getPrice()
-                - ((productDTO.getDiscount() * 0.01) * productDTO.getPrice());
+        double currentPrice = productFromDB.getPrice();
+        double currentDiscount = productFromDB.getDiscount();
+        double specialPrice = currentPrice
+                - ((currentDiscount * 0.01) * currentPrice);
         productFromDB.setSpecialPrice(specialPrice);
+        System.out.println("[BACKEND] Updated specialPrice to: " + specialPrice);
 
         Product savedProduct = productRepo.save(productFromDB);
 
         List<Cart> carts = cartRepo.findCartsByProductId(productId);
-
-        List<CartDTO> cartDTOs = carts.stream().map(cart -> {
-            CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
-            List<ProductDTO> products = cart.getCartItems().stream()
-                    .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).collect(Collectors.toList());
-            cartDTO.setProducts(products);
-            return cartDTO;
-        }).collect(Collectors.toList());
-        cartDTOs.forEach(cart -> cartService.updateProductInCarts(cart.getCartId(), productId));
+        carts.forEach(cart -> cartService.updateProductInCarts(cart.getCartId(), productId));
         return mapToDTOWithImage(savedProduct);
     }
 

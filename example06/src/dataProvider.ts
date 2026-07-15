@@ -1,6 +1,5 @@
-import { keyframes } from "@emotion/react";
 import axios from "axios";
-import { CreateParams, CreateResult, DataProvider, DeleteManyParams, DeleteManyResult, DeleteParams, DeleteResult, GetManyParams, GetManyReferenceParams, GetManyReferenceResult, GetManyResult, GetOneParams, GetOneResult, Identifier, QueryFunctionContext, RaRecord, UpdateManyParams, UpdateManyResult, UpdateParams, UpdateResult } from "react-admin";
+import { CreateParams, CreateResult, DataProvider, DeleteManyParams, DeleteManyResult, DeleteParams, DeleteResult, GetManyParams, GetManyReferenceParams, GetManyReferenceResult, GetManyResult, GetOneParams, GetOneResult, QueryFunctionContext, RaRecord, UpdateManyParams, UpdateManyResult, UpdateParams, UpdateResult } from "react-admin";
 
 const apiUrl = 'http://localhost:8080/api';
 
@@ -93,7 +92,9 @@ export const dataProvider: DataProvider = {
         };
         console.log('Request filter:', filter);
         let url: string;
-        if (filter && filter.search) {
+        if (resource === 'carts') {
+            url = `${apiUrl}/admin/carts`;
+        } else if (filter && filter.search) {
             const keyword = filter.search;
             delete query.search;
             url = `${apiUrl}/public/${resource}/keyword/${encodeURIComponent(keyword)}?${new URLSearchParams(query).toString()}`;
@@ -108,8 +109,19 @@ export const dataProvider: DataProvider = {
         return httpClient.get(url).then(({ json }) => {
             const IMAGE_BASE_URL = 'http://localhost:8080/api/public/products/image/';
 
+            if (resource === 'carts') {
+                const items = Array.isArray(json.content) ? json.content : [];
+                const data = items.map((item: any) => ({
+                    id: item.cartId,
+                    ...item,
+                }));
+                return {
+                    data,
+                    total: data.length,
+                };
+            }
+
             const data = json.content.map((item: any) => {
-                // ✅ xác định id đúng theo resource
                 const id =
                     resource === 'products'
                         ? item.productId
@@ -117,7 +129,6 @@ export const dataProvider: DataProvider = {
                             ? item.categoryId
                             : item.id;
 
-                // chỉ products mới có image
                 if (resource === 'products') {
                     let image = item.image;
 
@@ -132,7 +143,6 @@ export const dataProvider: DataProvider = {
                     };
                 }
 
-                // categories
                 return {
                     id,
                     ...item,
@@ -225,32 +235,69 @@ export const dataProvider: DataProvider = {
         const url = `${apiUrl}/admin/${resource}/${params.id}`;
         const { data } = params;
 
-        const result = await httpClient.put(url, data);
+        const payload: any = {
+            ...data,
+            productId: params.id,
+        };
+
+        if (data.categoryId !== undefined) {
+            payload.categoryId = typeof data.categoryId === 'number' ? data.categoryId : Number(data.categoryId);
+        }
+        if (data.price !== undefined) {
+            payload.price = typeof data.price === 'number' ? data.price : Number(data.price);
+        }
+        if (data.discount !== undefined) {
+            payload.discount = typeof data.discount === 'number' ? data.discount : Number(data.discount);
+        }
+        if (data.quantity !== undefined) {
+            payload.quantity = data.quantity == null ? undefined : Number(data.quantity);
+        }
+        if (data.specialPrice !== undefined) {
+            payload.specialPrice = Number(data.specialPrice);
+        }
+
+        console.log('UPDATE request', url, payload);
+
+        const result = await httpClient.put(url, payload);
+        const responseData = result.json ?? {};
+        const serverId = Number(responseData.productId ?? responseData.id ?? params.id);
 
         const updatedData = {
-            id: params.id,
-            ...result.json
+            ...responseData,
+            id: serverId,
+            productId: serverId,
+            price: Number(responseData.price ?? payload.price ?? 0),
+            discount: Number(responseData.discount ?? payload.discount ?? 0),
+            specialPrice: Number(responseData.specialPrice ?? payload.specialPrice ?? 0),
         };
+
         return { data: updatedData };
     },
     getOne: async (resource: string, params: GetOneParams): Promise<GetOneResult> => {
-    const url = `${apiUrl}/public/${resource}/${params.id}`;
-    const result = await httpClient.get(url);
+        let url: string;
+        if (resource === 'carts') {
+            url = `${apiUrl}/admin/carts/${params.id}`;
+        } else {
+            url = `${apiUrl}/public/${resource}/${params.id}`;
+        }
 
-    const idFieldMapping: { [key: string]: string } = {
-        products: 'productId',
-        categories: 'categoryId',
-    };
+        const result = await httpClient.get(url);
 
-    const idField = idFieldMapping[resource] || 'id';
+        const idFieldMapping: { [key: string]: string } = {
+            products: 'productId',
+            categories: 'categoryId',
+            carts: 'cartId',
+        };
 
-    const data = {
-        id: result.json[idField], // ✅ ĐÚNG
-        ...result.json,
-    };
+        const idField = idFieldMapping[resource] || 'id';
 
-    return { data };
-},
+        const data = {
+            id: result.json[idField],
+            ...result.json,
+        };
+
+        return { data };
+    },
 
     getMany: async (resource: string, params: GetManyParams): Promise<GetManyResult> => {
         const idFieldMapping: { [key: string]: string } = {

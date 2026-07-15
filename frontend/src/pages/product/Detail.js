@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { GET_ID, POST_ADD } from "../../api/apiService"; // Import your GET_ID function for API calls
+import { GET_ID, POST_CART_ADD } from "../../api/apiService"; // Import your GET_ID function for API calls
 import { useNavigate } from "react-router-dom";
 const Detail = () => {
   const [searchParams] = useSearchParams();
@@ -28,9 +28,28 @@ const Detail = () => {
     }
   }, [productId]);
   const navigate = useNavigate();
-  const addToCart = () => {
+  const addToCart = async () => {
+    const storedEmail = localStorage.getItem("userEmail");
+    const storedCartId = localStorage.getItem("cartId");
+
+    if (storedEmail && storedCartId) {
+      try {
+        const cartDto = await POST_CART_ADD(storedCartId, product.productId, quantity);
+        if (cartDto?.products) {
+          localStorage.setItem("cart", JSON.stringify(cartDto.products));
+        }
+        navigate("/cart");
+        return;
+      } catch (error) {
+        console.error("Failed to add product to backend cart:", error);
+      }
+    }
+
     try {
       let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      if (!Array.isArray(cart)) {
+        cart = [];
+      }
 
       const existingItem = cart.find(
         (item) => item.productId === product.productId
@@ -51,9 +70,7 @@ const Detail = () => {
 
       localStorage.setItem("cart", JSON.stringify(cart));
 
-      // 👉 chuyển sang trang giỏ hàng
       navigate("/cart");
-
     } catch (error) {
       console.error(error);
       alert("Thêm vào giỏ hàng thất bại!");

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { LOGIN } from "../../api/apiService"; // Adjust the path based on your project structure
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { LOGIN, GET_USER_BY_EMAIL } from "../../api/apiService";
+import { useNavigate } from "react-router-dom";
 
 const SectionContent = () => {
   const [email, setEmail] = useState("");
@@ -24,14 +24,32 @@ const body = {
 
         if (token) {
           localStorage.setItem("authToken", token);
+          localStorage.setItem("userEmail", email);
 
-          localStorage.setItem(
-            "user",
-            JSON.stringify({
-              username: email,
-              email: email,
+          await GET_USER_BY_EMAIL(email)
+            .then((userData) => {
+              if (userData?.cart?.cartId) {
+                localStorage.setItem("cartId", userData.cart.cartId);
+              }
+              localStorage.setItem(
+                "user",
+                JSON.stringify({
+                  username: email,
+                  email: email,
+                  cartId: userData?.cart?.cartId || null,
+                })
+              );
             })
-          );
+            .catch((error) => {
+              console.warn("Could not fetch user cart after login:", error);
+              localStorage.setItem(
+                "user",
+                JSON.stringify({
+                  username: email,
+                  email: email,
+                })
+              );
+            });
 
           window.alert("Login successful!");
           navigate("/Home");

@@ -36,6 +36,19 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private ModelMapper modelMapper;
 
+    private void enrichCartDTOWithUser(Cart cart, CartDTO cartDTO) {
+        if (cart.getUser() != null) {
+            cartDTO.setEmail(cart.getUser().getEmail());
+            cartDTO.setCustomerName(cart.getUser().getFirstName() + " " + cart.getUser().getLastName());
+        }
+    }
+
+    private double calculateTotalPrice(Cart cart) {
+        return cart.getCartItems().stream()
+                .mapToDouble(item -> item.getProductPrice() * item.getQuantity())
+                .sum();
+    }
+
     @Override
     public CartDTO addProductToCart(Long cartId, Long productId, Integer quantity) {
         Cart cart = cartRepo.findById(cartId)
@@ -62,9 +75,13 @@ public class CartServiceImpl implements CartService {
         newCartItem.setDiscount(product.getDiscount());
         newCartItem.setProductPrice(product.getSpecialPrice());
         cartItemRepo.save(newCartItem);
+        cart.getCartItems().add(newCartItem);
         product.setQuantity(product.getQuantity() - quantity);
         cart.setTotalPrice(cart.getTotalPrice() + (product.getSpecialPrice() * quantity));
         CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+        cart.setTotalPrice(calculateTotalPrice(cart));
+        enrichCartDTOWithUser(cart, cartDTO);
+        cartDTO.setTotalPrice(cart.getTotalPrice());
         List<ProductDTO> productDTOs = cart.getCartItems().stream()
                 .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).collect(Collectors.toList());
         cartDTO.setProducts(productDTOs);
@@ -79,6 +96,9 @@ public class CartServiceImpl implements CartService {
         }
         List<CartDTO> cartDTOs = carts.stream().map(cart -> {
             CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+            cart.setTotalPrice(calculateTotalPrice(cart));
+            enrichCartDTOWithUser(cart, cartDTO);
+            cartDTO.setTotalPrice(cart.getTotalPrice());
             List<ProductDTO> products = cart.getCartItems().stream()
                     .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).collect(Collectors.toList());
             cartDTO.setProducts(products);
@@ -94,6 +114,9 @@ public class CartServiceImpl implements CartService {
             throw new ResourceNotFoundException("Cart", "cartId", cartId);
         }
         CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+        cart.setTotalPrice(calculateTotalPrice(cart));
+        enrichCartDTOWithUser(cart, cartDTO);
+        cartDTO.setTotalPrice(cart.getTotalPrice());
         List<ProductDTO> products = cart.getCartItems().stream()
                 .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).collect(Collectors.toList());
         cartDTO.setProducts(products);
@@ -107,6 +130,9 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cart", "cartId", cartId));
 
         CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+        cart.setTotalPrice(calculateTotalPrice(cart));
+        enrichCartDTOWithUser(cart, cartDTO);
+        cartDTO.setTotalPrice(cart.getTotalPrice());
 
         List<ProductDTO> products = cart.getCartItems()
                 .stream()
@@ -126,12 +152,12 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
         CartItem cartItem = cartItemRepo.findCartItemByProductIdAndCartId(cartId, productId);
         if (cartItem == null) {
-            throw new APIException("Product" + product.getProductName() + " not available in the cart!!!");
+            throw new APIException("Product " + product.getProductName() + " not available in the cart!!!");
         }
-        double cartPrice = cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity());
         cartItem.setProductPrice(product.getSpecialPrice());
-        cart.setTotalPrice(cartPrice + (cartItem.getProductPrice() * cartItem.getQuantity()));
         cartItem = cartItemRepo.save(cartItem);
+        cart.setTotalPrice(calculateTotalPrice(cart));
+        cartRepo.save(cart);
     }
 
     @Override

@@ -14,9 +14,9 @@ public class ProductDTO {
     private String image;
     private String description;
     private Integer quantity;
-    private double price;
-    private double discount;
-    private double specialPrice;
+    private Double price;
+    private Double discount;
+    private Double specialPrice;
 
     // 🔴 ĐƯA 2 BIẾN NÀY XUỐNG DƯỚI CÙNG THEO ĐÚNG MẪU CỦA THẦY
     private String categoryName;
@@ -64,27 +64,27 @@ public class ProductDTO {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
-    public double getDiscount() {
+    public Double getDiscount() {
         return discount;
     }
 
-    public void setDiscount(double discount) {
+    public void setDiscount(Double discount) {
         this.discount = discount;
     }
 
-    public double getSpecialPrice() {
+    public Double getSpecialPrice() {
         return specialPrice;
     }
 
-    public void setSpecialPrice(double specialPrice) {
+    public void setSpecialPrice(Double specialPrice) {
         this.specialPrice = specialPrice;
     }
 

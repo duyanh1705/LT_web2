@@ -8,8 +8,10 @@ const LogoutPage = () => {
     const confirmLogout = window.confirm("Bạn có chắc chắn muốn đăng xuất?");
     if (confirmLogout) {
       // Clear user session data
-      localStorage.removeItem("username");
-      localStorage.removeItem("token");
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("cartId");
       localStorage.removeItem("cart");
       localStorage.removeItem("favorite");
       // Add any other items you want to clear from localStorage

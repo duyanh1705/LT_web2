@@ -28,6 +28,7 @@ export const authProvider ={
             const token = response.data["jwt-token"];
             localStorage.setItem("jwt-token", token);
             localStorage.setItem("username", username);
+            localStorage.setItem("globalEmailCart", username);
             //Fetch user data to get cartId
             const userResponse = await axios.get(`http://localhost:8080/api/public/users/email/${username}`,{
                 headers: {
@@ -36,6 +37,7 @@ export const authProvider ={
             });
             const cartId = userResponse.data.cart.cartId;
             localStorage.setItem("cartId", cartId);
+            localStorage.setItem("globalCartId", String(cartId));
             return Promise.resolve();
         } catch (error) {
             return Promise.reject(new Error("Sai tài khoản hoặc mật khẩu. Vui lòng thử lại."));
@@ -46,6 +48,9 @@ export const authProvider ={
     logout: () => {
         localStorage.removeItem("jwt-token");
         localStorage.removeItem("username");
+        localStorage.removeItem("globalEmailCart");
+        localStorage.removeItem("globalCartId");
+        localStorage.removeItem("cartId");
         return Promise.resolve();
     },
     //called when the API returns an error
@@ -53,6 +58,9 @@ export const authProvider ={
         if(status === 401 || status === 403){
             localStorage.removeItem("jwt-token");
             localStorage.removeItem("username");
+            localStorage.removeItem("globalEmailCart");
+            localStorage.removeItem("globalCartId");
+            localStorage.removeItem("cartId");
             return Promise.reject();
         }
         return Promise.resolve();

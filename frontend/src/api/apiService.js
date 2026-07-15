@@ -41,21 +41,16 @@ function callApi(endpoint, method = "GET", body, params) {
 export function GET_ALL(endpoint, params) {
   return callApi(endpoint, "GET", null, params);
 }
-GET_ALL("products/search", {
-  pageNumber: 0,
-  pageSize: 10,
-  sortBy: "productId",
-  sortOrder: "asc",
-  search: "hoa",
-})
-  .then((data) => {
-    console.log("Search results:", data);
-  })
-  .catch((error) => {
-    console.error("Failed to fetch search results:", error);
-  });
 export function GET_ID(endpoint, id) {
   return callApi(`${endpoint}/${id}`, "GET");
+}
+
+export function GET_USER_BY_EMAIL(email) {
+  return callApi(`/users/email/${encodeURIComponent(email)}`, "GET");
+}
+
+export function GET_USER_CART(email, cartId) {
+  return callApi(`/users/${encodeURIComponent(email)}/carts/${cartId}`, "GET");
 }
 
 export function POST_ADD(endpoint, data) {
@@ -64,6 +59,18 @@ export function POST_ADD(endpoint, data) {
 
 export function PUT_EDIT(endpoint, data) {
   return callApi(endpoint, "PUT", data);
+}
+
+export function POST_CART_ADD(cartId, productId, quantity) {
+  return POST_ADD(`/carts/${cartId}/products/${productId}/quantity/${quantity}`, {});
+}
+
+export function PUT_CART_UPDATE(cartId, productId, quantity) {
+  return PUT_EDIT(`/carts/${cartId}/products/${productId}/quantity/${quantity}`, {});
+}
+
+export function DELETE_CART_PRODUCT(cartId, productId) {
+  return callApi(`/carts/${cartId}/product/${productId}`, "DELETE");
 }
 
 export function DELETE_ID(endpoint) {

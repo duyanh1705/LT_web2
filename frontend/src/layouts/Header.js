@@ -58,6 +58,9 @@ function Header() {
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("cartId");
+    localStorage.removeItem("cart");
     setUser(null);
     navigate("/Home");
 
